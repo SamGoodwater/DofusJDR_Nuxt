@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     'nuxt-auth-utils',
     "@prisma/nuxt",
+    "@nuxt/image",
+    '@nuxt/content'
   ],
   app: {
     head: {

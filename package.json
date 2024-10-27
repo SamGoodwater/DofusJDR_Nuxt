@@ -16,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "nuxt": "^3.13.2",
     "nuxt-auth-utils": "^0.4.4",
+    "nuxt-content": "^0.1.1",
     "nuxt-umami": "^3.0.2",
     "superjson": "^2.2.1",
     "vue": "latest",

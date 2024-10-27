@@ -1,0 +1,530 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bookmark {
+  id          Int    @id @default(autoincrement())
+  uniqid_user String @db.VarChar(20)
+  uniqid_obj  String @db.VarChar(20)
+  classe      String @db.TinyText
+}
+
+model capability {
+  id                    Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name                  String  @db.MediumText
+  description           String  @db.MediumText
+  effect                String  @db.MediumText
+  level                 Int     @default(1)
+  pa                    String? @db.TinyText
+  po                    String  @default("1") @db.TinyText
+  po_editable           Boolean @default(true)
+  time_before_use_again String? @db.TinyText
+  casting_time          String? @db.TinyText
+  duration              String? @db.TinyText
+  element               Int     @default(0)
+  is_magic              Boolean @default(true)
+  ritual_available      Boolean @default(true)
+  powerful              Int     @default(2) @db.TinyInt
+  usable                Boolean @default(false)
+}
+
+model classe {
+  id                Int     @id @default(autoincrement())
+  official_id       String? @db.VarChar(64)
+  dofusdb_id        String? @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.TinyText
+  description_fast  String? @db.MediumText
+  description       String? @db.MediumText
+  life              String? @db.MediumText
+  life_dice         Int     @default(10)
+  specificity       String? @db.MediumText
+  weapons_of_choice Int?
+  trait             String? @db.MediumText
+  usable            Boolean @default(false)
+  dofus_version     String  @default("1") @db.VarChar(20)
+}
+
+model condition_ {
+  id                Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.LongText
+  description       String? @db.MediumText
+  is_unbewitchable  Boolean @default(false)
+  is_malus          Boolean @default(true)
+  usable            Boolean @default(false)
+}
+
+model consumable {
+  id                   Int                    @id @default(autoincrement())
+  official_id          String?                @db.VarChar(64)
+  dofusdb_id           String?                @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  timestamp_updated    Int
+  type                 Int                    @default(1) @db.SmallInt
+  name                 String                 @db.LongText
+  description          String?                @db.MediumText
+  effect               String?                @db.MediumText
+  level                Int?
+  recepe               String?                @db.MediumText
+  price                String?                @db.TinyText
+  rarity               Int                    @default(5)
+  usable               Boolean                @default(false)
+  dofus_version        String                 @default("2") @db.VarChar(20)
+  link_shop_consumable link_shop_consumable[]
+}
+
+model item {
+  id                Int     @id @default(autoincrement())
+  official_id       String? @db.VarChar(64)
+  dofusdb_id        String? @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.VarChar(255)
+  level             Int
+  description       String? @db.MediumText
+  type              Int     @default(1) @db.SmallInt
+  effect            String  @db.MediumText
+  bonus             String? @db.MediumText
+  recepe            String? @db.MediumText
+  actif             String  @default("'0'") @db.TinyText
+  twohands          String  @default("'0'") @db.TinyText
+  pa                String  @default("1") @db.TinyText
+  po                String  @default("1") @db.TinyText
+  price             String? @db.TinyText
+  rarity            Int     @default(5)
+  usable            Boolean @default(false)
+  dofus_version     String  @default("2") @db.VarChar(20)
+}
+
+model link_capability_specialization {
+  id             Int @id @default(autoincrement())
+  id_capability  Int
+  specialization Int
+}
+
+model link_classe_capability {
+  id            Int @id @default(autoincrement())
+  id_classe     Int
+  id_capability Int
+}
+
+model link_classe_spell {
+  id        Int     @id @default(autoincrement())
+  id_classe Int
+  id_spell  Int
+  id_group  String? @db.TinyText
+}
+
+model link_item_ressource {
+  id           Int    @id @default(autoincrement())
+  id_item      Int
+  id_ressource Int
+  quantity     String @default("1") @db.TinyText
+}
+
+model link_mob_capability {
+  id            Int @id @default(autoincrement())
+  id_mob        Int
+  id_capability Int
+}
+
+model link_mob_consumable {
+  id            Int     @id @default(autoincrement())
+  id_mob        Int
+  id_consumable Int
+  quantity      String? @db.TinyText
+}
+
+model link_mob_item {
+  id       Int     @id @default(autoincrement())
+  id_mob   Int
+  id_item  Int
+  quantity String? @db.TinyText
+}
+
+model link_mob_spell {
+  id       Int   @id @default(autoincrement())
+  id_mob   Int
+  id_spell Int
+  mob      mob   @relation(fields: [id_mob], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "link_mob_spell_ibfk_1")
+  spell    spell @relation(fields: [id_spell], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "link_mob_spell_ibfk_2")
+
+  @@index([id_mob], map: "id_mob")
+  @@index([id_spell], map: "id_spell")
+}
+
+model link_npc_capability {
+  id            Int @id @default(autoincrement())
+  id_npc        Int
+  id_capability Int
+}
+
+model link_npc_consumable {
+  id            Int     @id @default(autoincrement())
+  id_npc        Int
+  id_consumable Int
+  quantity      String? @db.TinyText
+}
+
+model link_npc_item {
+  id       Int     @id @default(autoincrement())
+  id_npc   Int
+  id_item  Int
+  quantity String? @db.TinyText
+}
+
+model link_npc_spell {
+  id       Int @id @default(autoincrement())
+  id_npc   Int
+  id_spell Int
+}
+
+model link_shop_consumable {
+  id            Int        @id @default(autoincrement())
+  id_shop       Int
+  id_consumable Int
+  quantity      String?    @db.TinyText
+  price         String?    @db.TinyText
+  comment       String?    @db.LongText
+  consumable    consumable @relation(fields: [id_consumable], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "link_shop_consumable_ibfk_1")
+  shop          shop       @relation(fields: [id_shop], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "link_shop_consumable_ibfk_2")
+
+  @@index([id_consumable], map: "id_consumable")
+  @@index([id_shop], map: "id_shop")
+}
+
+model link_shop_item {
+  id       Int     @id @default(autoincrement())
+  id_shop  Int
+  id_item  Int
+  quantity String? @db.TinyText
+  price    String? @db.TinyText
+  comment  String? @db.LongText
+}
+
+model link_spell_mob {
+  id       Int @id @default(autoincrement())
+  id_spell Int
+  id_mob   Int
+}
+
+model link_spell_type {
+  id       Int   @id @default(autoincrement())
+  id_spell Int
+  type     Int
+  spell    spell @relation(fields: [id_spell], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "link_spell_type_ibfk_1")
+
+  @@index([id_spell], map: "id_spell")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mob {
+  id                     Int              @id @default(autoincrement())
+  official_id            String?          @db.VarChar(64)
+  dofusdb_id             String?          @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name                   String           @db.TinyText
+  description            String?          @db.LongText
+  level                  String           @default("1") @db.TinyText
+  life                   String?          @default("0") @db.TinyText
+  vitality               String           @default("10") @db.TinyText
+  pa                     String           @default("1") @db.TinyText
+  pm                     String           @default("1") @db.TinyText
+  po                     String           @default("0") @db.TinyText
+  ini                    String           @default("0") @db.TinyText
+  touch                  String?          @db.TinyText
+  sagesse                String?          @default("0") @db.TinyText
+  strong                 String?          @default("0") @db.TinyText
+  intel                  String?          @default("0") @db.TinyText
+  agi                    String           @default("0") @db.TinyText
+  chance                 String           @default("0") @db.TinyText
+  do_fixe_neutre         String?          @default("0") @db.TinyText
+  do_fixe_terre          String?          @default("0") @db.TinyText
+  do_fixe_feu            String?          @default("0") @db.TinyText
+  do_fixe_air            String?          @default("0") @db.TinyText
+  do_fixe_eau            String?          @default("0") @db.TinyText
+  do_fixe_multiple       String?          @default("0") @db.TinyText
+  ca                     String           @default("0") @db.TinyText
+  fuite                  String           @default("0") @db.TinyText
+  tacle                  String           @default("0") @db.TinyText
+  dodge_pa               String           @default("0") @db.TinyText
+  dodge_pm               String           @default("0") @db.TinyText
+  res_neutre             String           @default("0") @db.TinyText
+  res_terre              String           @default("0") @db.TinyText
+  res_feu                String           @default("0") @db.TinyText
+  res_air                String           @default("0") @db.TinyText
+  res_eau                String           @default("0") @db.TinyText
+  acrobatie_bonus        Int?             @default(0) @db.TinyInt
+  discretion_bonus       Int?             @default(0) @db.TinyInt
+  escamotage_bonus       Int?             @default(0) @db.TinyInt
+  athletisme_bonus       Int?             @default(0) @db.TinyInt
+  intimidation_bonus     Int?             @default(0) @db.TinyInt
+  arcane_bonus           Int?             @default(0) @db.TinyInt
+  histoire_bonus         Int?             @default(0) @db.TinyInt
+  investigation_bonus    Int?             @default(0) @db.TinyInt
+  nature_bonus           Int?             @default(0) @db.TinyInt
+  religion_bonus         Int?             @default(0) @db.TinyInt
+  dressage_bonus         Int?             @default(0) @db.TinyInt
+  medecine_bonus         Int?             @default(0) @db.TinyInt
+  perception_bonus       Int?             @default(0) @db.TinyInt
+  perspicacite_bonus     Int?             @default(0) @db.TinyInt
+  survie_bonus           Int?             @default(0) @db.TinyInt
+  persuasion_bonus       Int?             @default(0) @db.TinyInt
+  representation_bonus   Int?             @default(0) @db.TinyInt
+  supercherie_bonus      Int?             @default(0) @db.TinyInt
+  acrobatie_mastery      Int?             @default(0) @db.TinyInt
+  discretion_mastery     Int?             @default(0) @db.TinyInt
+  escamotage_mastery     Int?             @default(0) @db.TinyInt
+  athletisme_mastery     Int?             @default(0) @db.TinyInt
+  intimidation_mastery   Int?             @default(0) @db.TinyInt
+  arcane_mastery         Int?             @default(0) @db.TinyInt
+  histoire_mastery       Int?             @default(0) @db.TinyInt
+  investigation_mastery  Int?             @default(0) @db.TinyInt
+  nature_mastery         Int?             @default(0) @db.TinyInt
+  religion_mastery       Int?             @default(0) @db.TinyInt
+  dressage_mastery       Int?             @default(0) @db.TinyInt
+  medecine_mastery       Int?             @default(0) @db.TinyInt
+  perception_mastery     Int?             @default(0) @db.TinyInt
+  perspicacite_mastery   Int?             @default(0) @db.TinyInt
+  survie_mastery         Int?             @default(0) @db.TinyInt
+  persuasion_mastery     Int?             @default(0) @db.TinyInt
+  representation_mastery Int?             @default(0) @db.TinyInt
+  supercherie_mastery    Int?             @default(0) @db.TinyInt
+  location               String?          @db.MediumText
+  hostility              Int              @default(2)
+  size                   Int              @default(2)
+  trait                  String?          @db.MediumText
+  kamas                  String?          @db.MediumText
+  drop_                  String?          @db.MediumText
+  other_info             String?          @db.MediumText
+  other_item             String?          @db.MediumText
+  other_consumable       String?          @db.MediumText
+  other_spell            String?          @db.MediumText
+  usable                 Boolean          @default(false)
+  dofus_version          String           @default("2") @db.VarChar(20)
+  link_mob_spell         link_mob_spell[]
+}
+
+model mob_race {
+  id                Int     @id @default(autoincrement())
+  dofusdb_id        String? @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.TinyText
+  super_name        String? @db.TinyText
+  usable            Boolean @default(true)
+}
+
+model npc {
+  id                     Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name                   String  @db.TinyText
+  classe                 String  @db.TinyText
+  description            String? @db.MediumText
+  location               String? @db.MediumText
+  story                  String? @db.MediumText
+  historical             String? @db.TinyText
+  alignment              String? @db.TinyText
+  level                  Int     @default(1)
+  trait                  String? @db.MediumText
+  other_info             String? @db.MediumText
+  age                    String? @db.TinyText
+  size                   String? @db.TinyText
+  weight                 String? @db.TinyText
+  life                   Int?    @default(30)
+  pa                     Int?    @default(6)
+  pm                     Int?    @default(3)
+  po                     Int?    @default(0)
+  ini                    Int?    @default(0)
+  invocation             Int?    @default(0)
+  touch                  Int?    @default(0)
+  ca                     Int?    @default(0)
+  dodge_pa               Int?    @default(0)
+  dodge_pm               Int?    @default(0)
+  fuite                  Int?    @default(0)
+  tacle                  Int?    @default(0)
+  vitality               Int?    @default(0)
+  sagesse                Int?    @default(0)
+  strong                 Int?    @default(0)
+  intel                  Int?    @default(0)
+  agi                    Int?    @default(0)
+  chance                 Int?    @default(0)
+  do_fixe_neutre         String? @default("0") @db.TinyText
+  do_fixe_terre          String? @default("0") @db.TinyText
+  do_fixe_feu            String? @default("0") @db.TinyText
+  do_fixe_air            String? @default("0") @db.TinyText
+  do_fixe_eau            String? @default("0") @db.TinyText
+  do_fixe_multiple       String? @default("0") @db.TinyText
+  res_neutre             Int?    @default(0)
+  res_terre              Int?    @default(0)
+  res_feu                Int?    @default(0)
+  res_air                Int?    @default(0)
+  res_eau                Int?    @default(0)
+  acrobatie_bonus        Int?    @default(0)
+  discretion_bonus       Int?    @default(0)
+  escamotage_bonus       Int?    @default(0)
+  athletisme_bonus       Int?    @default(0)
+  intimidation_bonus     Int?    @default(0)
+  arcane_bonus           Int?    @default(0)
+  histoire_bonus         Int?    @default(0)
+  investigation_bonus    Int?    @default(0)
+  nature_bonus           Int?    @default(0)
+  religion_bonus         Int?    @default(0)
+  dressage_bonus         Int?    @default(0)
+  medecine_bonus         Int?    @default(0)
+  perception_bonus       Int?    @default(0)
+  perspicacite_bonus     Int?    @default(0)
+  survie_bonus           Int?    @default(0)
+  persuasion_bonus       Int?    @default(0)
+  representation_bonus   Int?    @default(0)
+  supercherie_bonus      Int?    @default(0)
+  acrobatie_mastery      Int?    @default(0) @db.TinyInt
+  discretion_mastery     Int?    @default(0) @db.TinyInt
+  escamotage_mastery     Int?    @default(0) @db.TinyInt
+  athletisme_mastery     Int?    @default(0) @db.TinyInt
+  intimidation_mastery   Int?    @default(0) @db.TinyInt
+  arcane_mastery         Int?    @default(0) @db.TinyInt
+  histoire_mastery       Int?    @default(0) @db.TinyInt
+  investigation_mastery  Int?    @default(0) @db.TinyInt
+  nature_mastery         Int?    @default(0) @db.TinyInt
+  religion_mastery       Int?    @default(0) @db.TinyInt
+  dressage_mastery       Int?    @default(0) @db.TinyInt
+  medecine_mastery       Int?    @default(0) @db.TinyInt
+  perception_mastery     Int?    @default(0) @db.TinyInt
+  perspicacite_mastery   Int?    @default(0) @db.TinyInt
+  survie_mastery         Int?    @default(0) @db.TinyInt
+  persuasion_mastery     Int?    @default(0) @db.TinyInt
+  representation_mastery Int?    @default(0) @db.TinyInt
+  supercherie_mastery    Int?    @default(0) @db.TinyInt
+  kamas                  String? @db.MediumText
+  drop_                  String? @db.MediumText
+  other_item             String? @db.MediumText
+  other_consumable       String? @db.MediumText
+  other_spell            String? @db.MediumText
+  usable                 Boolean @default(true)
+}
+
+model page {
+  id                Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.MediumText
+  keyword           String? @db.Text
+  url_name          String  @db.MediumText
+  order_num         Int?    @default(0)
+  category          String? @default("0") @db.TinyText
+  is_dropdown       Boolean @default(false)
+  public            Boolean @default(true)
+  is_editable       Boolean @default(true)
+}
+
+model ressource {
+  id                Int     @id @default(autoincrement())
+  dofusdb_id        String? @db.VarChar(64)
+  official_id       Int?
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name              String  @db.TinyText
+  description       String? @db.Text
+  level             Int     @default(1)
+  type              Int     @default(0) @db.SmallInt
+  price             String? @db.TinyText
+  weight            String? @db.TinyText
+  rarity            Int     @default(5) @db.TinyInt
+  usable            Boolean @default(true)
+  dofus_version     String? @default("2") @db.VarChar(20)
+}
+
+model section {
+  id                Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  type              String  @default("0") @db.TinyText
+  uniqid_page       String  @db.TinyText
+  title             String? @db.MediumText
+  content           String? @db.MediumText
+  order_num         Int     @default(0) @db.SmallInt
+  visible           Boolean @default(true)
+}
+
+model shop {
+  id                   Int                    @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name                 String                 @db.TinyText
+  description          String?                @db.LongText
+  location             String?                @db.TinyText
+  price                Int?                   @default(0)
+  id_seller            Int?
+  usable               Boolean                @default(true)
+  link_shop_consumable link_shop_consumable[]
+
+  @@index([id_seller], map: "id_seller")
+}
+
+model spell {
+  id                      Int               @id @default(autoincrement())
+  official_id             String?           @db.VarChar(64)
+  dofusdb_id              String?           @db.VarChar(64)
+  uniqid         String  @db.VarChar(20) @unique
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+  name                    String            @db.MediumText
+  description             String            @db.MediumText
+  effect                  String            @db.MediumText
+  effect_array            String?           @db.Text
+  area                    Int               @default(0)
+  level                   Int               @default(1)
+  po                      String            @default("1") @db.TinyText
+  po_editable             Boolean           @default(true)
+  pa                      String            @default("4") @db.TinyText
+  cast_per_turn           String            @default("1") @db.TinyText
+  cast_per_target         Int               @default(0)
+  sight_line              Boolean           @default(true)
+  number_between_two_cast String            @default("0") @db.TinyText
+  element                 Int               @default(0)
+  category                Int               @default(0)
+  is_magic                Boolean           @default(true)
+  powerful                Int               @default(2) @db.TinyInt
+  usable                  Boolean           @default(false)
+  dofus_version           String            @default("2") @db.VarChar(20)
+  link_mob_spell          link_mob_spell[]
+  link_spell_type         link_spell_type[]
+}
+
+model user {
+  id             Int     @id @default(autoincrement())
+  uniqid         String  @db.VarChar(20) @unique
+  token          String  @db.VarChar(255)
+  email          String  @db.TinyText
+  pseudo         String  @db.TinyText
+  hash           String  @db.VarChar(512)
+  rights         String? @db.Text
+  is_admin       Boolean @default(false)
+  created_at     DateTime @default(now()) @db.DateTime(0)
+  updated_at     DateTime? @updatedAt
+}
